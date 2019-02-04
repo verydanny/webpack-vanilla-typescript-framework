@@ -1,4 +1,4 @@
-const { WebpackPluginServe: Serve } = require('webpack-plugin-serve')
+const { WebpackPluginServe } = require('webpack-plugin-serve')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const path = require('path')
 
@@ -6,18 +6,18 @@ const outputDir = path.resolve(process.cwd(), 'dist')
 
 module.exports = {
   mode: 'development',
-  watch: true,
-  entry: ['./src/index.ts', 'webpack-plugin-serve/client'],
+  devtool: 'source-map',
+  entry: [path.resolve(__dirname, 'src'), 'webpack-plugin-serve/client'],
   output: {
     path: outputDir,
-  },
-  resolve: {
-    extensions: ['.ts', '.js', '.json'],
+    filename: 'bundle.js',
+    publicPath: '/',
   },
   module: {
     rules: [
       {
-        test: /\.tsx?/,
+        test: /\.tsx?$/,
+        exclude: /node_modules/,
         loader: 'babel-loader',
         options: {
           cacheDirectory: true,
@@ -26,14 +26,16 @@ module.exports = {
     ],
   },
   plugins: [
-    new Serve({
+    new WebpackPluginServe({
       static: outputDir,
-      log: {
-        level: 'warn',
-      },
       progress: 'minimal',
-      historyFallback: true,
     }),
-    new HtmlWebpackPlugin(),
+    new HtmlWebpackPlugin({
+      template: path.resolve(__dirname, 'template.html'),
+    }),
   ],
+  watch: true,
+  resolve: {
+    extensions: ['.js', '.jsx', '.json', '.tsx', '.ts'],
+  },
 }
